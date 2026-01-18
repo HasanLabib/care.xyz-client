@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Care.xyz
 
-## Getting Started
+Care.xyz is a caregiving booking platform where users can browse services, view details, and make bookings for baby care, elderly care, or support for sick family members. The project uses Next.js App Router with a simple client-side auth context and server-side data fetching where appropriate.
 
-First, run the development server:
+## Setup & Installation
+
+- Install dependencies:
+
+```bash
+npm install
+```
+
+- Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Build for production:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Start production server:
 
-## Learn More
+```bash
+npm run start
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Configuration
+- Client API requests use a same-origin base at `/api` defined in `src/app/library/api.js`.
+- All `/api/*` requests are proxied server-side to your backend in `src/app/api/[...path]/route.js`. Update the `BACKEND` constant there to point to your desired server.
+- Images from your backend domains are allowed in `next.config.mjs` via `images.remotePatterns`. Update if your asset hosts change.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Route Summary
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `/` — Landing page (Banner, About, Services preview, HowItWorks, Testimonials, CTA, Contact)
+- `/services` — Service listing (SSR fetch)
+- `/service/[id]` — Service details (SSR fetch)
+- `/booking/[id]` — Booking form (client; calculates total cost, posts booking)
+- `/login` — Login page (client; updates auth context)
+- `/register` — Registration page (client)
+- `/my-bookings` — User bookings (SSR fetch; redirects to `/login` if unauthorized)
+- `/api/*` — Server route that proxies requests to the remote backend (avoids browser CORS and forwards cookies)
 
-## Deploy on Vercel
+## Implemented Features
+- Auth context provider with `user`, `loading`, and `logout` exposed to the app
+- Login flow that sets user from the response or falls back to `/api/me` if available
+- SSR pages forward request cookies to the backend for authenticated data (`/services`, `/my-bookings`, `/service/[id]`)
+- Booking flow with dynamic total cost based on duration and service price
+- Server-side API proxy under `/api/*` that forwards headers, cookies, and body to the remote backend
+- Next/Image configured to handle images from local and remote hosts
+- Navbar reflects authentication state and shows appropriate actions
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deploying to Vercel
+- Push the repository to your Git provider and import the project in Vercel.
+- Ensure the proxy route at `src/app/api/[...path]/route.js` points `BACKEND` to your production backend URL.
+- Confirm your image domains in `next.config.mjs` (`images.remotePatterns`) include any remote asset hosts.
+- Build and deploy; the server route will run on Vercel and forward `/api/*` requests to your backend, avoiding CORS issues.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Tech
+- Next.js (App Router)
+- React
+- Axios
+- Tailwind CSS + DaisyUI
