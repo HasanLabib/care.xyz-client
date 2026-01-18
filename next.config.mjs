@@ -1,4 +1,3 @@
-// next.config.mjs
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -10,19 +9,13 @@ const nextConfig = {
         hostname: "server-psi-lake-59.vercel.app",
         pathname: "/**",
       },
-      {
-        protocol: "http",
-        hostname: "localhost",
-        port: "5000",
-        pathname: "/**",
-      },
     ],
   },
   async rewrites() {
     return [
       {
-        source: "/api/:path*",
-        destination: "https://server-psi-lake-59.vercel.app/:path*", // backend URL
+        source: "/api/:path*", // frontend route
+        destination: "https://server-psi-lake-59.vercel.app/:path*", // deployed backend
       },
     ];
   },
