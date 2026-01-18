@@ -3,7 +3,6 @@
 import api from "@/app/library/api";
 import { createContext, useEffect, useState } from "react";
 
-
 export const AuthContext = createContext();
 
 export default function AuthProvider({ children }) {
@@ -11,22 +10,32 @@ export default function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const getUser = async () => {
-    try {
-      const res = await api.get("/me");
-      setUser(res.data);
-    } catch {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    setLoading(false);
+    return;
+  }
+
+  try {
+    const res = await api.get("/me");
+    setUser(res.data);
+  } catch {
+    setUser(null);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     getUser();
   }, []);
 
   const logout = async () => {
-    await api.post("/logout");
+    localStorage.removeItem("accessToken"); // 🔥 REQUIRED
+    try {
+      await api.post("/logout"); // optional now
+    } catch {}
     setUser(null);
   };
 
