@@ -7,22 +7,30 @@ export const dynamic = "force-dynamic";
 async function fetchBookings(cookieHeader) {
   try {
     const res = await api.get("/my-bookings", {
-      headers: { cookie: cookieHeader || "" }, // send cookies from SSR
+      headers: { cookie: cookieHeader || "" },
     });
     return res.data;
   } catch (err) {
     if (err.response?.status === 401 || err.response?.status === 403) {
-      redirect("/login"); // redirect if unauthorized
+      redirect("/login");
     }
     throw err;
   }
 }
 
 export default async function MyBookingsPage() {
-  const cookieHeader = cookies()
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
+  const cookieStore = cookies();
+
+  const accessTokenCookie = cookieStore.get("accessToken");
+  const refreshTokenCookie = cookieStore.get("refreshToken");
+
+  const cookieHeader = [
+    accessTokenCookie ? `accessToken=${accessTokenCookie.value}` : null,
+    refreshTokenCookie ? `refreshToken=${refreshTokenCookie.value}` : null,
+  ]
+    .filter(Boolean)
     .join("; ");
+
   const bookings = await fetchBookings(cookieHeader);
 
   return (
