@@ -14,6 +14,9 @@ export default async function handler(req, res) {
 
     res.status(200).json(response.data);
   } catch (err) {
-    res.status(err.response?.status || 500).json({ message: err.message });
+    console.error("API Proxy Error:", err.message);
+    res
+      .status(err.response?.status || 500)
+      .json({ message: err.response?.data?.message || err.message });
   }
 }

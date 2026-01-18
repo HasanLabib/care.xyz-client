@@ -15,7 +15,6 @@ export default function ServiceDetailsPage({ params }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // fetch service details
   useState(() => {
     const fetchService = async () => {
       try {

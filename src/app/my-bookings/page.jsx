@@ -1,20 +1,29 @@
-import api from "@/app/library/api"; // client-side axios
+import { cookies } from "next/headers";
+import api from "../library/api";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-export default async function MyBookingsPage() {
-  let bookings = [];
-
+async function fetchBookings(cookieHeader) {
   try {
-    const res = await api.get("/my-bookings");
-    bookings = res.data;
+    const res = await api.get("/my-bookings", {
+      headers: { cookie: cookieHeader || "" }, // send cookies from SSR
+    });
+    return res.data;
   } catch (err) {
     if (err.response?.status === 401 || err.response?.status === 403) {
-      redirect("/login");
+      redirect("/login"); // redirect if unauthorized
     }
-    console.error(err);
+    throw err;
   }
+}
+
+export default async function MyBookingsPage() {
+  const cookieHeader = cookies()
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ");
+  const bookings = await fetchBookings(cookieHeader);
 
   return (
     <div className="max-w-5xl mx-auto p-10">
