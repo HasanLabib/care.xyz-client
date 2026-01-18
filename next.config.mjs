@@ -1,16 +1,19 @@
+// next.config.mjs
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
+  swcMinify: true,
   images: {
     remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "server-psi-lake-59.vercel.app",
+        pathname: "/**",
+      },
       {
         protocol: "http",
         hostname: "localhost",
         port: "5000",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "server-psi-lake-59.vercel.app",
         pathname: "/**",
       },
     ],
@@ -19,7 +22,7 @@ const nextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "https://server-psi-lake-59.vercel.app/:path*",
+        destination: "https://server-psi-lake-59.vercel.app/:path*", // backend URL
       },
     ];
   },
