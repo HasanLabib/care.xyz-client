@@ -2,7 +2,7 @@ import Image from "next/image";
 import BookingForm from "./BookingForm"; // client-side booking form
 import api from "@/app/library/api";
 
-export const dynamic = "force-dynamic"; // ensures SSR
+export const dynamic = "force-dynamic";
 
 export default async function ServiceDetailsPage({ params, headers }) {
   const cookieHeader = headers?.cookie || "";
@@ -18,7 +18,11 @@ export default async function ServiceDetailsPage({ params, headers }) {
   }
 
   if (!service) {
-    return <p className="text-center mt-10 text-red-500">Service not found.</p>;
+    return (
+      <div className="text-center mt-10 text-red-500">
+        <p>Service not found.</p>
+      </div>
+    );
   }
 
   return (
@@ -32,6 +36,7 @@ export default async function ServiceDetailsPage({ params, headers }) {
       />
 
       <h1 className="text-4xl font-bold mb-4">{service.name}</h1>
+
       <p className="mb-4 text-gray-600">{service.description}</p>
 
       <p className="text-2xl font-bold text-primary mb-6">
