@@ -11,14 +11,6 @@ const nextConfig = {
       },
     ],
   },
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*", // frontend route
-        destination: "https://server-psi-lake-59.vercel.app/:path*", // deployed backend
-      },
-    ];
-  },
 };
 
 export default nextConfig;
