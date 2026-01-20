@@ -31,7 +31,7 @@ export default function AuthProvider({ children }) {
   }, []);
 
   const logout = async () => {
-    localStorage.removeItem("accessToken"); // safe in client
+    localStorage.removeItem("accessToken");
     try {
       await api.post("/logout");
     } catch {}
