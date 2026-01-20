@@ -6,23 +6,26 @@ export default function ServiceCard({ service }) {
     <div className="card bg-base-100 shadow hover:shadow-lg transition">
       <figure>
         <Image
-          src={service.image}
+          src={service.image || "/placeholder.svg"}
           alt={service.name}
           width={800}
           height={450}
           className="h-48 w-full object-cover"
+          onError={(e) => {
+            e.target.src = "/placeholder.svg";
+          }}
         />
       </figure>
 
       <div className="card-body">
         <h2 className="card-title">{service.name}</h2>
-        <p className="text-sm text-gray-600">{service.description}</p>
+        <p className="text-sm text-gray-600 line-clamp-3">{service.description}</p>
 
-        <p className="font-bold text-lg text-primary">
+        <p className="font-bold text-lg text-primary mt-2">
           ৳ {service.price} / day
         </p>
 
-        <div className="card-actions justify-end">
+        <div className="card-actions justify-end mt-4">
           <Link
             href={`/service/${service._id}`}
             className="btn btn-primary btn-sm"

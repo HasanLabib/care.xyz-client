@@ -1,3 +1,6 @@
+'use client';
+import Link from 'next/link';
+
 export default function Services() {
   const serviceList = [
     { name: "Baby Care", desc: "Professional caregivers for infants and toddlers." },
@@ -12,10 +15,18 @@ export default function Services() {
         {serviceList.map((service) => (
           <div key={service.name} className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
             <h3 className="text-xl font-semibold mb-2">{service.name}</h3>
-            <p className="text-gray-600">{service.desc}</p>
-            <button className="btn btn-sm btn-primary mt-4">Book Service</button>
+            <p className="text-gray-600 mb-4">{service.desc}</p>
+            <Link href="/services">
+              <button className="btn btn-sm btn-primary mt-4">View All Services</button>
+            </Link>
           </div>
         ))}
+      </div>
+      
+      <div className="text-center mt-12">
+        <Link href="/services">
+          <button className="btn btn-primary btn-lg">Browse All Services</button>
+        </Link>
       </div>
     </section>
   );

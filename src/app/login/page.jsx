@@ -16,14 +16,15 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
 
-
     try {
       const res = await api.post("/login", { email, password });
 
-      localStorage.setItem("accessToken", res.data.accessToken);
+      // Cookies are automatically set by the server
+      // No need to manually store in localStorage
 
       if (res.data?.user) setUser(res.data.user);
 
+      // Redirect to items/lists page (which is /services)
       router.push("/services");
     } catch (err) {
       console.error(err.response?.data || err.message);

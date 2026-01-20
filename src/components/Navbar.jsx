@@ -13,7 +13,7 @@ export default function Navbar() {
         <Link href="/" className="text-xl font-bold">Care.xyz</Link>
       </div>
       <div className="flex gap-3">
-        <Link href="/services" className="btn btn-ghost">Services</Link>
+        <Link href="/services" className="btn btn-ghost">Items</Link>
 
         {user ? (
           <>
