@@ -1,20 +1,29 @@
 import Image from "next/image";
-import BookingForm from "./BookingForm"; // client-side booking form
+import BookingForm from "./BookingForm";
 import api from "@/app/library/api";
+import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
-export default async function ServiceDetailsPage({ params, headers }) {
-  const cookieHeader = headers?.cookie || "";
+export default async function ServiceDetailsPage({ params }) {
   let service = null;
 
   try {
+    const cookieStore = cookies();
+    const cookieHeader = cookieStore
+      .getAll()
+      .map((c) => `${c.name}=${c.value}`)
+      .join("; ");
+
     const res = await api.get(`/service/${params.id}`, {
-      headers: { cookie: cookieHeader },
+      headers: {
+        cookie: cookieHeader,
+      },
     });
+
     service = res.data;
   } catch (err) {
-    console.error("Failed to fetch service:", err);
+    console.error("Failed to fetch service:", err?.response?.data || err.message);
   }
 
   if (!service) {
@@ -36,7 +45,6 @@ export default async function ServiceDetailsPage({ params, headers }) {
       />
 
       <h1 className="text-4xl font-bold mb-4">{service.name}</h1>
-
       <p className="mb-4 text-gray-600">{service.description}</p>
 
       <p className="text-2xl font-bold text-primary mb-6">
