@@ -1,7 +1,6 @@
 import Image from "next/image";
 import BookingForm from "./BookingForm";
 import api from "@/app/library/api";
-import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
@@ -9,17 +8,13 @@ export default async function ServiceDetailsPage({ params }) {
   let service = null;
 
   try {
-    const cookieStore = cookies();
-    const cookieHeader = cookieStore
-      .getAll()
-      .map((c) => `${c.name}=${c.value}`)
-      .join("; ");
-
     const res = await api.get(`/service/${params.id}`);
-
     service = res.data;
   } catch (err) {
-    console.error("Failed to fetch service:", err?.response?.data || err.message);
+    console.error(
+      "Failed to fetch service:",
+      err?.response?.data || err.message,
+    );
   }
 
   if (!service) {
