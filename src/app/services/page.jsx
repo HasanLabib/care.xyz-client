@@ -11,15 +11,19 @@ export default function ServicesPage() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        // Use API proxy for consistent routing and cookie handling
+        // Use API proxy for consistent routing - no authentication required for public services
         const response = await fetch('/api/services', {
-          credentials: 'include',
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         });
 
         if (response.ok) {
           const data = await response.json();
           setServices(data);
         } else {
+          console.error('Services API error:', response.status, response.statusText);
           setError(`Failed to load services (${response.status})`);
         }
       } catch (err) {
@@ -69,9 +73,14 @@ export default function ServicesPage() {
     <div className="max-w-7xl mx-auto p-10">
       <h1 className="text-4xl font-bold mb-8 text-center">Our Care Services</h1>
 
+      <p className="text-center text-gray-600 mb-8">
+        Discover our comprehensive care services designed to meet your family's needs.
+      </p>
+
       {services.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-600">No services available at the moment.</p>
+          <p className="text-gray-500 text-sm mt-2">Please check back later for updates.</p>
         </div>
       ) : (
         <div className="grid md:grid-cols-3 gap-8">

@@ -14,9 +14,12 @@ export default function ServiceDetailsPage() {
   useEffect(() => {
     const fetchService = async () => {
       try {
-        // Use API proxy for consistent routing and cookie handling
+        // Public API call - no authentication required for service details
         const response = await fetch(`/api/service/${params.id}`, {
-          credentials: 'include',
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         });
         
         if (response.ok) {
@@ -25,6 +28,7 @@ export default function ServiceDetailsPage() {
         } else if (response.status === 404) {
           setError('Service not found');
         } else {
+          console.error('Service details API error:', response.status, response.statusText);
           setError(`Failed to load service (${response.status})`);
         }
       } catch (err) {

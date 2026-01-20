@@ -24,10 +24,18 @@ export default function AuthProvider({ children }) {
         const res = await api.get("/me", {
           signal: abortControllerRef.current.signal
         });
-        setUser(res.data);
+        
+        if (res.data && res.data._id) {
+          setUser(res.data);
+        } else {
+          setUser(null);
+        }
       } catch (error) {
         if (error.name !== 'AbortError') {
-          console.error('Failed to fetch user:', error);
+          // Don't log 401/403 errors as they're expected when not logged in
+          if (error.response?.status !== 401 && error.response?.status !== 403) {
+            console.error('Failed to fetch user:', error);
+          }
           setUser(null);
         }
       } finally {
