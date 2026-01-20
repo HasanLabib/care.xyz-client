@@ -26,6 +26,22 @@ export default function BookingForm({ service }) {
       return;
     }
 
+    // Validate form inputs
+    if (!form.duration || isNaN(form.duration) || form.duration <= 0 || form.duration > 365) {
+      alert("Please enter a valid duration (1-365 days)");
+      return;
+    }
+
+    if (!form.location?.trim()) {
+      alert("Please enter a location");
+      return;
+    }
+
+    if (!form.address?.trim()) {
+      alert("Please enter an address");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -35,8 +51,8 @@ export default function BookingForm({ service }) {
         serviceId: service._id,
         serviceName: service.name,
         duration: form.duration,
-        location: form.location,
-        address: form.address,
+        location: form.location.trim(),
+        address: form.address.trim(),
         totalCost,
       });
 

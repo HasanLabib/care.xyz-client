@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import api from "../library/api";
 import { AuthContext } from "@/context/AuthProvider";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState } from "react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -11,13 +11,6 @@ export default function Login() {
   const { user, setUser, loading } = useContext(AuthContext);
   const router = useRouter();
   const [loginLoading, setLoginLoading] = useState(false);
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (!loading && user) {
-      router.push("/services");
-    }
-  }, [user, loading, router]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -27,11 +20,9 @@ export default function Login() {
       const res = await api.post("/login", { email, password });
 
       // Cookies are automatically set by the server
-      // No need to manually store in localStorage
-
       if (res.data?.user) {
         setUser(res.data.user);
-        // Redirect to items/lists page (which is /services)
+        // Redirect to services page after successful login
         router.push("/services");
       }
     } catch (err) {
@@ -54,9 +45,22 @@ export default function Login() {
     );
   }
 
-  // Don't render login form if user is already logged in
+  // If user is already logged in, show a message instead of redirecting
   if (user) {
-    return null;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="card p-8 shadow w-96 text-center">
+          <h2 className="text-2xl mb-4">Already Logged In</h2>
+          <p className="mb-4">You are already logged in as {user.name}</p>
+          <button
+            onClick={() => router.push("/services")}
+            className="btn btn-primary w-full"
+          >
+            Go to Services
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -84,7 +88,7 @@ export default function Login() {
         <button className="btn btn-primary w-full" disabled={loginLoading}>
           {loginLoading ? "Logging in..." : "Login"}
         </button>
-        
+
         <div className="text-center mt-4">
           <p className="text-sm text-gray-600">
             Don't have an account?{" "}

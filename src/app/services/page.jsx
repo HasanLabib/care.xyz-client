@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import ServiceCard from "@/components/ServiceCard";
+import api from "@/app/library/api";
 
 export default function ServicesPage() {
   const [services, setServices] = useState([]);
@@ -11,21 +12,9 @@ export default function ServicesPage() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        // Use API proxy for consistent routing - no authentication required for public services
-        const response = await fetch('/api/services', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setServices(data);
-        } else {
-          console.error('Services API error:', response.status, response.statusText);
-          setError(`Failed to load services (${response.status})`);
-        }
+        // Use axios api instance for consistent error handling and token refresh
+        const response = await api.get('/services');
+        setServices(response.data);
       } catch (err) {
         console.error('Failed to fetch services:', err);
         setError('Unable to connect to services. Please try again later.');

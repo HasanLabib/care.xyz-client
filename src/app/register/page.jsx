@@ -25,6 +25,8 @@ export default function RegisterPage() {
 
     if (!form.name?.trim()) {
       newErrors.name = 'Name is required';
+    } else if (form.name.trim().length < 2) {
+      newErrors.name = 'Name must be at least 2 characters';
     }
 
     if (!form.email?.trim()) {
@@ -41,10 +43,14 @@ export default function RegisterPage() {
 
     if (!form.contact?.trim()) {
       newErrors.contact = 'Contact is required';
+    } else if (!/^\d{10,15}$/.test(form.contact.replace(/\D/g, ''))) {
+      newErrors.contact = 'Contact must be a valid phone number';
     }
 
     if (!form.nid?.trim()) {
       newErrors.nid = 'NID is required';
+    } else if (form.nid.trim().length < 5) {
+      newErrors.nid = 'NID must be at least 5 characters';
     }
 
     setErrors(newErrors);

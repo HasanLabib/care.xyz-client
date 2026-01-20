@@ -29,12 +29,17 @@ export default function MyBookingsPage() {
   }, [user]);
 
   const handleCancelBooking = async (bookingId) => {
+    // Add confirmation dialog
+    if (!confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) {
+      return;
+    }
+
     try {
       await api.patch(`/cancel-booking/${bookingId}`);
       // Update the booking status in the local state
       setBookings(bookings.map(booking =>
         booking._id === bookingId
-          ? { ...booking, status: 'Cancelled' }
+          ? { ...booking, status: 'Cancelled', cancelledAt: new Date() }
           : booking
       ));
       alert("Booking cancelled successfully!");

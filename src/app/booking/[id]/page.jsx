@@ -1,124 +1,126 @@
 'use client';
-import { useParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import api from '@/app/library/api';
+import PrivateRoute from '@/components/PrivateRoute';
 
-export default function BookingPage() {
-  const params = useParams();
-  const router = useRouter();
-  const [service, setService] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({
-    duration: '',
-    location: '',
-    address: '',
-  });
+export default function BookingConfirmationPage() {
+    const params = useParams();
+    const [booking, setBooking] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchService = async () => {
-      try {
-        const response = await api.get(`/service/${params.id}`);
-        setService(response.data);
-      } catch (error) {
-        console.error('Error fetching service:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    useEffect(() => {
+        const fetchBooking = async () => {
+            try {
+                // Fetch booking details by ID
+                const response = await api.get(`/my-bookings`);
+                const bookings = response.data;
+                const foundBooking = bookings.find(b => b._id === params.id);
 
-    if (params.id) {
-      fetchService();
+                if (foundBooking) {
+                    setBooking(foundBooking);
+                } else {
+                    setError('Booking not found');
+                }
+            } catch (err) {
+                console.error('Failed to fetch booking:', err);
+                setError('Unable to load booking details');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (params.id) {
+            fetchBooking();
+        }
+    }, [params.id]);
+
+    if (loading) {
+        return (
+            <PrivateRoute>
+                <div className="max-w-4xl mx-auto p-10">
+                    <div className="text-center py-12">
+                        <div className="loading loading-spinner loading-lg"></div>
+                        <p className="mt-4 text-gray-600">Loading booking details...</p>
+                    </div>
+                </div>
+            </PrivateRoute>
+        );
     }
-  }, [params.id]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    try {
-      const bookingData = {
-        serviceId: params.id,
-        serviceName: service.name,
-        duration: formData.duration,
-        location: formData.location,
-        address: formData.address,
-        totalCost: service.price * parseInt(formData.duration),
-      };
-
-      await api.post('/booking', bookingData);
-      alert('Booking placed successfully!');
-      router.push('/my-bookings');
-    } catch (error) {
-      console.error('Booking error:', error);
-      alert('Failed to place booking. Please try again.');
+    if (error || !booking) {
+        return (
+            <PrivateRoute>
+                <div className="max-w-4xl mx-auto p-10">
+                    <div className="text-center mt-10">
+                        <h1 className="text-2xl font-bold mb-4 text-red-600">Booking Not Found</h1>
+                        <p className="text-gray-600 mb-4">{error || 'The booking you\'re looking for doesn\'t exist.'}</p>
+                        <a href="/my-bookings" className="btn btn-primary">
+                            Back to My Bookings
+                        </a>
+                    </div>
+                </div>
+            </PrivateRoute>
+        );
     }
-  };
 
-  if (loading) return <div className="p-8">Loading...</div>;
-  if (!service) return <div className="p-8">Service not found</div>;
+    return (
+        <PrivateRoute>
+            <div className="max-w-4xl mx-auto p-10">
+                <div className="card bg-base-100 shadow-lg">
+                    <div className="card-body">
+                        <h1 className="card-title text-3xl mb-6">Booking Confirmation</h1>
 
-  return (
-    <div className="max-w-2xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">Book {service.name}</h1>
-      
-      <div className="bg-white p-6 rounded-lg shadow mb-6">
-        <h2 className="text-xl font-semibold mb-2">{service.name}</h2>
-        <p className="text-gray-600 mb-4">{service.description}</p>
-        <p className="text-lg font-semibold">Price: ${service.price}/hour</p>
-      </div>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h2 className="text-xl font-semibold mb-4">Service Details</h2>
+                                <div className="space-y-2">
+                                    <p><span className="font-bold">Service:</span> {booking.serviceName}</p>
+                                    <p><span className="font-bold">Duration:</span> {booking.duration} day(s)</p>
+                                    <p><span className="font-bold">Total Cost:</span> ৳{booking.totalCost}</p>
+                                </div>
+                            </div>
 
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow">
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">Duration (hours)</label>
-          <input
-            type="number"
-            min="1"
-            required
-            className="w-full p-2 border rounded"
-            value={formData.duration}
-            onChange={(e) => setFormData({...formData, duration: e.target.value})}
-          />
-        </div>
+                            <div>
+                                <h2 className="text-xl font-semibold mb-4">Location Details</h2>
+                                <div className="space-y-2">
+                                    <p><span className="font-bold">Location:</span> {booking.location}</p>
+                                    <p><span className="font-bold">Address:</span> {booking.address}</p>
+                                </div>
+                            </div>
+                        </div>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">Location Type</label>
-          <select
-            required
-            className="w-full p-2 border rounded"
-            value={formData.location}
-            onChange={(e) => setFormData({...formData, location: e.target.value})}
-          >
-            <option value="">Select location</option>
-            <option value="home">At Home</option>
-            <option value="facility">At Facility</option>
-          </select>
-        </div>
+                        <div className="mt-6">
+                            <h2 className="text-xl font-semibold mb-4">Booking Information</h2>
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <p><span className="font-bold">Booking ID:</span> {booking._id}</p>
+                                <p><span className="font-bold">Status:</span>
+                                    <span className={`badge ml-2 ${booking.status === "Pending" ? "badge-warning" :
+                                            booking.status === "Cancelled" ? "badge-error" : "badge-success"
+                                        }`}>
+                                        {booking.status}
+                                    </span>
+                                </p>
+                                <p><span className="font-bold">Booked On:</span> {new Date(booking.createdAt).toLocaleDateString()}</p>
+                                {booking.cancelledAt && (
+                                    <p><span className="font-bold">Cancelled On:</span> {new Date(booking.cancelledAt).toLocaleDateString()}</p>
+                                )}
+                            </div>
+                        </div>
 
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">Address</label>
-          <textarea
-            required
-            className="w-full p-2 border rounded"
-            rows="3"
-            value={formData.address}
-            onChange={(e) => setFormData({...formData, address: e.target.value})}
-          />
-        </div>
-
-        {formData.duration && (
-          <div className="mb-4 p-4 bg-gray-50 rounded">
-            <p className="font-semibold">
-              Total Cost: ${service.price * parseInt(formData.duration)}
-            </p>
-          </div>
-        )}
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-        >
-          Place Booking
-        </button>
-      </form>
-    </div>
-  );
+                        <div className="card-actions justify-end mt-6">
+                            <a href="/my-bookings" className="btn btn-outline">
+                                View All Bookings
+                            </a>
+                            <a href="/services" className="btn btn-primary">
+                                Book Another Service
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </PrivateRoute>
+    );
 }

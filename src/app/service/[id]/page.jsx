@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Image from "next/image";
 import BookingForm from "./BookingForm";
+import api from "@/app/library/api";
 
 export default function ServiceDetailsPage() {
   const params = useParams();
@@ -14,26 +15,16 @@ export default function ServiceDetailsPage() {
   useEffect(() => {
     const fetchService = async () => {
       try {
-        // Public API call - no authentication required for service details
-        const response = await fetch(`/api/service/${params.id}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          setService(data);
-        } else if (response.status === 404) {
-          setError('Service not found');
-        } else {
-          console.error('Service details API error:', response.status, response.statusText);
-          setError(`Failed to load service (${response.status})`);
-        }
+        // Use axios api instance for consistent error handling
+        const response = await api.get(`/service/${params.id}`);
+        setService(response.data);
       } catch (err) {
         console.error("Failed to fetch service:", err.message);
-        setError('Unable to connect to service. Please try again later.');
+        if (err.response?.status === 404) {
+          setError('Service not found');
+        } else {
+          setError('Unable to connect to service. Please try again later.');
+        }
       } finally {
         setLoading(false);
       }

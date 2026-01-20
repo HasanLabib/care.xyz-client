@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 
-const API_BASE_URL = process.env.API_URL || 'https://server-psi-lake-59.vercel.app';
+const API_BASE_URL = process.env.API_URL;
+
+if (!API_BASE_URL) {
+  throw new Error('API_URL environment variable is required');
+}
 
 export async function GET(request, { params }) {
   return handleRequest('GET', request, params);
@@ -153,12 +157,11 @@ async function handleRequest(method, request, { params }) {
       stack: error.stack
     });
     
+    // Return sanitized error message for production
     return NextResponse.json(
       { 
-        error: 'API Proxy Network Error', 
-        message: error.message,
-        name: error.name,
-        targetUrl: targetUrl,
+        error: 'Service temporarily unavailable', 
+        message: 'Please try again later',
         timestamp: new Date().toISOString()
       },
       { status: 500 }
