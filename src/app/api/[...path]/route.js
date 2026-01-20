@@ -29,6 +29,10 @@ async function handleRequest(method, request, { params }) {
   // Build the target URL
   const targetUrl = `${API_BASE_URL}/${path.join('/')}${url.search}`;
   
+  // Log the request for debugging
+  console.log(`[API Proxy] ${method} ${targetUrl}`);
+  console.log(`[API Proxy] API_BASE_URL: ${API_BASE_URL}`);
+  
   try {
     const options = {
       method,
@@ -53,8 +57,21 @@ async function handleRequest(method, request, { params }) {
       }
     }
 
+    console.log(`[API Proxy] Request options:`, { 
+      method, 
+      url: targetUrl, 
+      headers: Object.keys(options.headers) 
+    });
+
     const response = await fetch(targetUrl, options);
     const data = await response.text();
+
+    console.log(`[API Proxy] Response status: ${response.status}`);
+    
+    if (!response.ok) {
+      console.error(`[API Proxy] Backend error: ${response.status} ${response.statusText}`);
+      console.error(`[API Proxy] Response body:`, data);
+    }
 
     // Properly handle Set-Cookie headers for cross-domain
     const responseHeaders = new Headers({
@@ -93,9 +110,15 @@ async function handleRequest(method, request, { params }) {
       headers: responseHeaders,
     });
   } catch (error) {
-    console.error('API Proxy Error:', error);
+    console.error('[API Proxy] Network Error:', error);
+    console.error('[API Proxy] Target URL was:', targetUrl);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { 
+        error: 'API Proxy Error', 
+        message: error.message,
+        targetUrl: targetUrl,
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     );
   }
