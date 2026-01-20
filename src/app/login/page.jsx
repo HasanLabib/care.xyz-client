@@ -19,7 +19,8 @@ export default function Login() {
     try {
       const res = await api.post("/login", { email, password });
 
-      // cookies handle auth automatically
+      localStorage.setItem("accessToken", res.data.accessToken);
+
       if (res.data?.user) setUser(res.data.user);
 
       router.push("/services");
