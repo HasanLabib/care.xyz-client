@@ -14,7 +14,8 @@ api.interceptors.response.use(
     // Only handle 401 errors that are NOT from the /me endpoint and haven't been retried
     if (error.response?.status === 401 && 
         !originalRequest.url?.includes('/me') && 
-        !originalRequest._retry) {
+        !originalRequest._retry &&
+        typeof window !== 'undefined') { // Only in browser environment
       
       originalRequest._retry = true;
       
@@ -24,8 +25,9 @@ api.interceptors.response.use(
         // Retry the original request
         return api.request(originalRequest);
       } catch (refreshError) {
-        // If refresh fails, redirect to login
-        if (typeof window !== 'undefined') {
+        // If refresh fails, redirect to login (but avoid infinite loops)
+        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+          console.log('Token refresh failed, redirecting to login');
           window.location.href = '/login';
         }
         return Promise.reject(refreshError);

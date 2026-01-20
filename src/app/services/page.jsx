@@ -10,20 +10,42 @@ export default function ServicesPage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let isMounted = true; // Prevent state updates if component unmounts
+    
     const fetchServices = async () => {
       try {
         // Use axios api instance for consistent error handling and token refresh
         const response = await api.get('/services');
-        setServices(response.data);
+        if (isMounted) {
+          setServices(response.data);
+        }
       } catch (err) {
         console.error('Failed to fetch services:', err);
-        setError('Unable to connect to services. Please try again later.');
+        if (isMounted) {
+          // More specific error messages based on error type
+          if (err.response?.status === 500) {
+            setError('Server error. Our team has been notified. Please try again in a few minutes.');
+          } else if (err.response?.status === 404) {
+            setError('Services endpoint not found. Please contact support.');
+          } else if (err.code === 'NETWORK_ERROR' || !err.response) {
+            setError('Network connection error. Please check your internet connection.');
+          } else {
+            setError('Unable to load services. Please try again later.');
+          }
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchServices();
+    
+    // Cleanup function to prevent memory leaks
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   if (loading) {

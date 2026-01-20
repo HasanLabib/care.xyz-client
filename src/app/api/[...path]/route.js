@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 
-const API_BASE_URL = process.env.API_URL;
+// Get API URL from environment - no hardcoded fallback for production safety
+const API_BASE_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
 
-if (!API_BASE_URL) {
-  throw new Error('API_URL environment variable is required');
-}
+// Log the API URL for debugging
+console.log('[API Proxy] API_BASE_URL configured as:', API_BASE_URL);
 
 export async function GET(request, { params }) {
   return handleRequest('GET', request, params);
@@ -28,6 +28,27 @@ export async function PATCH(request, { params }) {
 
 async function handleRequest(method, request, { params }) {
   try {
+    // Validate API_BASE_URL first
+    if (!API_BASE_URL) {
+      console.error('[API Proxy] API_BASE_URL is not configured');
+      console.error('[API Proxy] Environment check:', {
+        API_URL: process.env.API_URL ? 'SET' : 'NOT_SET',
+        NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ? 'SET' : 'NOT_SET',
+        NODE_ENV: process.env.NODE_ENV
+      });
+      return NextResponse.json(
+        { 
+          error: 'API configuration error',
+          message: 'Backend service is not properly configured',
+          debug: {
+            API_URL: process.env.API_URL ? 'SET' : 'NOT_SET',
+            NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ? 'SET' : 'NOT_SET'
+          }
+        },
+        { status: 500 }
+      );
+    }
+
     const { path } = params;
     const url = new URL(request.url);
     
@@ -150,19 +171,22 @@ async function handleRequest(method, request, { params }) {
     });
   } catch (error) {
     console.error('[API Proxy] Network Error:', error);
-    console.error('[API Proxy] Target URL was:', targetUrl);
+    console.error('[API Proxy] API_BASE_URL was:', API_BASE_URL);
     console.error('[API Proxy] Error details:', {
       name: error.name,
       message: error.message,
       stack: error.stack
     });
     
-    // Return sanitized error message for production
+    // Return detailed error for debugging
     return NextResponse.json(
       { 
-        error: 'Service temporarily unavailable', 
-        message: 'Please try again later',
-        timestamp: new Date().toISOString()
+        error: 'API Proxy Network Error',
+        message: error.message,
+        apiBaseUrl: API_BASE_URL,
+        errorName: error.name,
+        timestamp: new Date().toISOString(),
+        debug: 'Check Vercel function logs for more details'
       },
       { status: 500 }
     );

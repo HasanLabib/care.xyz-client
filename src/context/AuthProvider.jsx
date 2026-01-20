@@ -10,14 +10,16 @@ export default function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true; // Prevent state updates if component unmounts
+    
     const getUser = async () => {
       try {
         // Use cookies for authentication (server automatically includes them)
         const res = await api.get("/me");
         
-        if (res.data && res.data._id) {
+        if (isMounted && res.data && res.data._id) {
           setUser(res.data);
-        } else {
+        } else if (isMounted) {
           setUser(null);
         }
       } catch (error) {
@@ -25,13 +27,22 @@ export default function AuthProvider({ children }) {
         if (error.response?.status !== 401 && error.response?.status !== 403) {
           console.error('Failed to fetch user:', error);
         }
-        setUser(null);
+        if (isMounted) {
+          setUser(null);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     getUser();
+    
+    // Cleanup function to prevent memory leaks
+    return () => {
+      isMounted = false;
+    };
   }, []); // Empty dependency array - only run once on mount
 
   const logout = async () => {
