@@ -15,6 +15,7 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+    //console
 
     try {
       const res = await api.post("/login", { email, password });
