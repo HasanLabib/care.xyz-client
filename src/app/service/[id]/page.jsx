@@ -15,11 +15,7 @@ export default async function ServiceDetailsPage({ params }) {
       .map((c) => `${c.name}=${c.value}`)
       .join("; ");
 
-    const res = await api.get(`/service/${params.id}`, {
-      headers: {
-        cookie: cookieHeader,
-      },
-    });
+    const res = await api.get(`/service/${params.id}`);
 
     service = res.data;
   } catch (err) {
