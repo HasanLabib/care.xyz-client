@@ -1,7 +1,9 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://server-psi-lake-59.vercel.app",
+  baseURL: process.env.NODE_ENV === 'production' 
+    ? "/api" 
+    : process.env.NEXT_PUBLIC_API_URL || "/api",
   withCredentials: true,
 });
 

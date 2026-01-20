@@ -15,7 +15,7 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    //console
+
 
     try {
       const res = await api.post("/login", { email, password });
@@ -42,14 +42,18 @@ export default function Login() {
           required
           placeholder="Email"
           className="input input-bordered mb-3"
+          value={email}
           onChange={(e) => setEmail(e.target.value)}
+          disabled={loading}
         />
         <input
           type="password"
           required
           placeholder="Password"
           className="input input-bordered mb-3"
+          value={password}
           onChange={(e) => setPassword(e.target.value)}
+          disabled={loading}
         />
         <button className="btn btn-primary w-full" disabled={loading}>
           {loading ? "Logging in..." : "Login"}

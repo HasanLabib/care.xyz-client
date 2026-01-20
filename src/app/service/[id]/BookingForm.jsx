@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import useAuth from "@/hooks/useAuth";
 import api from "@/app/library/api";
 
 export default function BookingForm({ service }) {
   const [form, setForm] = useState({ duration: "", location: "", address: "" });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { user } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -16,6 +18,13 @@ export default function BookingForm({ service }) {
 
   const handleBooking = async (e) => {
     e.preventDefault();
+    
+    if (!user) {
+      alert("Please log in to book a service.");
+      router.push("/login");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -56,6 +65,7 @@ export default function BookingForm({ service }) {
         placeholder="Duration (days)"
         className="input input-bordered w-full"
         required
+        disabled={loading}
       />
 
       <input
@@ -66,6 +76,7 @@ export default function BookingForm({ service }) {
         placeholder="Location"
         className="input input-bordered w-full"
         required
+        disabled={loading}
       />
 
       <input
@@ -76,6 +87,7 @@ export default function BookingForm({ service }) {
         placeholder="Address"
         className="input input-bordered w-full"
         required
+        disabled={loading}
       />
 
       <button
