@@ -1,7 +1,7 @@
 # Care.xyz
 
 Care.xyz is a caregiving booking platform where users can browse services, view details, and make bookings for baby care, elderly care, or support for sick family members. The project uses Next.js App Router with a simple client-side auth context and server-side data fetching where appropriate.
-
+Server: https://github.com/HasanLabib/care.xyz-server.git
 ## Setup & Installation
 
 - Install dependencies:
